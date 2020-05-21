@@ -1,0 +1,15 @@
+*.pyc
+.python-version
+*.log
+*.sqlite3
+config.json
+venv/
+__pycache__/
+.vscode/
+madao/res
+madao/test
+#production files
+config.py
+.idea
+*.swp
+
