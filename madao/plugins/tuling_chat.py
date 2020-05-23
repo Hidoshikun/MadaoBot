@@ -16,8 +16,7 @@ from nonebot import logger
 bot = nonebot.get_bot()
 
 EXPR_DONT_UNDERSTAND = (
-    '出问题了，憋聊了',
-    '出了点问题，先别聊了',
+    '出了点问题，先别聊了QAQ',
 )
 
 

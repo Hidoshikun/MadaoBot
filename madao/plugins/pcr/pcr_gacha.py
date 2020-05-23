@@ -7,7 +7,6 @@ from PIL import Image
 import os
 from nonebot import logger
 import math
-import time
 
 # 国服only
 
@@ -15,6 +14,8 @@ bot = nonebot.get_bot()
 res_root = os.path.join(bot.config.RESOURCE_DIR, 'pcr')
 cfg_root = os.path.join(bot.config.CONFIG_DIR, 'pcr.json')
 config = util.load_config(cfg_root)
+
+__module__ = "pcr_gacha"
 
 # 选池子
 pool = config["BL_pool"]
@@ -28,20 +29,6 @@ star3 = pool["star3"]
 star2 = pool["star2"]
 star1 = pool["star1"]
 
-# 查询cd记录
-interval_dict = {}
-
-
-def check_interval(user_id):
-    if user_id not in interval_dict or int(time.time()) - interval_dict[user_id] >= 120:
-        return True
-    else:
-        return False
-
-
-def set_interval(user_id):
-    interval_dict[user_id] = int(time.time())
-
 
 @on_command('gacha', aliases=('来发十连',), only_to_me=False)
 async def gacha(session: CommandSession):
@@ -52,8 +39,8 @@ async def gacha(session: CommandSession):
 @on_command('pcr_gacha', aliases=('pcr十连',), only_to_me=False)
 async def pcr_gacha(session: CommandSession):
     user_id = session.ctx['user_id']
-    if not check_interval(user_id):
-        session.finish('您抽的太快啦，请让Madao休息一下，过几分钟再抽吧~', at_sender=True)
+    if not util.check_interval(user_id, __module__, 60):
+        session.finish('您抽的太快啦，请让Madao休息一下，一分钟后再抽吧', at_sender=True)
 
     result = []
     up_num, star3_num, star2_num = 0, 0, 0
@@ -125,14 +112,14 @@ async def pcr_gacha(session: CommandSession):
         text_result += "，有三星就挺好的，你说对不"
     elif star3_num == 0 and up_num == 0 and star2_num == 1:
         text_result += "，19密石get，人生还是如此波澜不惊"
-    set_interval(user_id)
+    util.set_interval(user_id, __module__)
     await session.send(at_msg + f'[CQ:image,file=file:///{res_root}\\out\\{name}.png]\n' + text_result)
 
 
 @on_command('tenjou', aliases=('来一井',), only_to_me=False)
 async def tenjou(session: CommandSession):
     user_id = session.ctx['user_id']
-    if not check_interval(user_id):
+    if not util.check_interval(user_id, __module__, 60):
         msg = "您抽的太快啦，请让Madao休息一下，过几分钟再抽吧~"
         await session.send(msg)
         return
@@ -180,7 +167,7 @@ async def tenjou(session: CommandSession):
     else:
         text_result += "， 在第{}抽抽出了本期up，咱们好歹出货了就不讲究什么了".format(first_up)
 
-    set_interval(user_id)
+    util.set_interval(user_id, __module__)
     await session.send(at_msg + f'[CQ:image,file=file:///{res_root}\\out\\{name}.png]' + text_result)
 
 

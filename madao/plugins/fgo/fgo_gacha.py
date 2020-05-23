@@ -13,11 +13,14 @@ import math
 # 卡池参考20200510国服卡池，卡池名称：复刻 唠唠叨叨帝都圣杯奇谭推荐召唤
 # 保底机制参考 https://zhuanlan.zhihu.com/p/75636518
 # 每日替换推荐从者太麻烦了，索性先8管，全部加进卡池去
+# 太懒了，卡牌数量多且重名卡多，卡池懒得维护了
 
 bot = nonebot.get_bot()
 res_root = os.path.join(bot.config.RESOURCE_DIR, 'fgo')
 cfg_root = os.path.join(bot.config.CONFIG_DIR, 'fgo.json')
 config = util.load_config(cfg_root)
+
+__module__ = "fgo_gacha"
 
 # 选池子
 pool = config["BL"]
@@ -80,9 +83,13 @@ pool_name = pool["pool_name"]
 # gacha
 @on_command('fgo', aliases=('fgo十连',), only_to_me=False)
 async def gacha(session: CommandSession):
+    user_id = session.ctx['user_id']
+    if not util.check_interval(user_id, __module__, 60):
+        session.finish('您抽的太快了，请让Madao休息一下，过几分钟后再来查吧', at_sender=True)
+
     at_msg = ''
     if session.ctx['message_type'] == 'group':
-        at_msg = '[CQ:at,qq={}]\n'.format(str(session.ctx['user_id']))
+        at_msg = '[CQ:at,qq={}]\n'.format(str(user_id))
 
     at_msg += "本期卡池：" + pool_name + "\n"
     limit_chara = ""
@@ -124,16 +131,22 @@ async def gacha(session: CommandSession):
         text_result += "五星从者+1，感觉来了，不要停下来啊~~"
     elif len(ls5_servant) + len(ns5_servant) > 1:
         text_result += "五星数量" + str(len(ls5_servant) + len(ns5_servant)) + ", 啊这，先提前谢谢老板（伸手"
-    text_result += "\n--- 抽卡形式仅为猜测，请以实际情况为准 --- "
+    text_result += "\n--- 抽卡形式仅为猜测，请以实际情况为准，P.S.卡池太大懒得维护了，凑合抽吧 --- "
+
+    util.set_interval(user_id, __module__)
     await session.send(at_msg + f'[CQ:image,file=file:///{res_root}\\out\\{name}.png]\n' + text_result)
 
 
 # gacha
 @on_command('fgo_gacha2', aliases=('fgo来一单',), only_to_me=False)
 async def gacha(session: CommandSession):
+    user_id = session.ctx['user_id']
+    if not util.check_interval(user_id, __module__, 60):
+        session.finish('您抽的太快了，请让Madao休息一下，过几分钟后再来查吧', at_sender=True)
+
     at_msg = ''
     if session.ctx['message_type'] == 'group':
-        at_msg = '[CQ:at,qq={}]\n'.format(str(session.ctx['user_id']))
+        at_msg = '[CQ:at,qq={}]\n'.format(str(user_id))
 
     at_msg += "本期卡池：" + pool_name + "\n"
     limit_chara = ""
@@ -194,8 +207,12 @@ async def gacha(session: CommandSession):
         elif len(ls5_servant) + len(ns5_servant) > 1:
             text_result += "五星数量" + str(len(ls5_servant) + len(ns5_servant)) + ", 啊这，已经可以了，你已经很欧了"
 
-    text_result += "\n--- 抽卡形式仅为猜测，请以实际情况为准 --- "
-    await session.send(at_msg + f'[CQ:image,file=file:///{res_root}\\out\\{name}.png]\n' + text_result)
+        text_result += "\n--- 抽卡形式仅为猜测，请以实际情况为准，P.S.卡池太大懒得维护了，凑合抽吧 --- "
+        text_result = f'[CQ:image,file=file:///{res_root}\\out\\{name}.png]\n' + text_result
+
+        util.set_interval(user_id, __module__)
+
+    await session.send(at_msg + text_result)
 
 
 # 十连

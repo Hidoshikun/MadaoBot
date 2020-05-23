@@ -2,6 +2,8 @@ from nonebot.default_config import *
 
 import os
 
+DEBUG = False
+
 SUPERUSERS = []
 
 COMMAND_START = {'', '/', '／'}
